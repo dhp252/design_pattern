@@ -1,6 +1,6 @@
 {
   "$schema": "https://aka.ms/codetour-schema",
-  "title": "Adapter",
+  "title": "1.adapter",
   "steps": [
     {
       "file": "structural_adapter.py",
