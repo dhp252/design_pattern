@@ -1,0 +1,41 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "2.bridge",
+  "steps": [
+    {
+      "file": "2.structural_bridge.py",
+      "description": "Similar to \"Adapter\" but now we already know / plan that we will need many handlers. An abstract class is created as an interface to call.",
+      "line": 10
+    },
+    {
+      "file": "2.structural_bridge.py",
+      "description": "When ever someone call \"log\" method, there will be an handler in fact run \"emit\" behind the scenes.",
+      "line": 13
+    },
+    {
+      "file": "2.structural_bridge.py",
+      "description": "Now when we have the interface, we truly build the cores",
+      "line": 26
+    },
+    {
+      "file": "2.structural_bridge.py",
+      "description": "Handler 1. Notice how init and emit method is implemented",
+      "line": 29
+    },
+    {
+      "file": "2.structural_bridge.py",
+      "description": "Similar to handler 2",
+      "line": 38
+    },
+    {
+      "file": "2.structural_bridge.py",
+      "description": "and 3",
+      "line": 46
+    },
+    {
+      "file": "2.structural_bridge.py",
+      "description": "class \"Logger\" and \"FilterdLogger\" worked as a Bridge to connect multiple core handlers to developed separatedly, hence the name.",
+      "line": 8
+    }
+  ]
+}
