@@ -1,0 +1,71 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Adapter",
+  "steps": [
+    {
+      "file": "structural_adapter.py",
+      "description": "This is the main class we want to work on. It load file handler and log message to that file",
+      "line": 7
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "We have a class that inherit Logger and will only log() logs that matches a pattern",
+      "line": 16
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "After a while, we realize that we need to work on Socket handler and Syslog also.\n",
+      "line": 25
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "We create a class for \"Socket\" that works just like a \"File\" in Logger...",
+      "line": 27
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "...",
+      "line": 9
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "This class will overwrite \"write\"...",
+      "line": 32
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "...",
+      "line": 12
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "and \"flush\" method in the Logger class.",
+      "line": 35
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "...",
+      "line": 13
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "Similar to Syslog",
+      "line": 39
+    },
+    {
+      "file": "structural_adapter.py",
+      "description": "We call \"FileLikeSocket\" and \"FileLikeSyslog\" are Adapters to the FilteredLogger and Logger class",
+      "line": 26,
+      "selection": {
+        "start": {
+          "line": 16,
+          "character": 7
+        },
+        "end": {
+          "line": 16,
+          "character": 21
+        }
+      }
+    }
+  ]
+}
