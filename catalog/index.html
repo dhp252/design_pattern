@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Patterns in Python — Interactive Catalog</title>
+  <meta name="description" content="Interactive catalog of all 22 GoF design patterns in Python with real-world examples, code snippets, and pattern combinations.">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-gradient-orb orb-1"></div>
+  <div class="bg-gradient-orb orb-2"></div>
+  <div class="bg-gradient-orb orb-3"></div>
+
+  <div class="content">
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Design Patterns<br>in Python</h1>
+      <p class="subtitle">
+        An interactive catalog of all 22 GoF patterns — with real-world scenarios,
+        Pythonic idioms, and powerful pattern combinations.
+      </p>
+      <div class="badge-row">
+        <span class="badge badge-creational">🏗️ 5 Creational</span>
+        <span class="badge badge-structural">🧩 7 Structural</span>
+        <span class="badge badge-behavioral">💬 10 Behavioral</span>
+        <span class="badge badge-combo">🔗 8 Combinations</span>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number">22</div>
+        <div class="stat-label">Patterns</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Combinations</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">30</div>
+        <div class="stat-label">Runnable Files</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">22+</div>
+        <div class="stat-label">Real-World Scenarios</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search patterns... (e.g. 'factory', 'undo', 'tree')">
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All Patterns</button>
+      <button class="filter-btn" data-filter="creational">🏗️ Creational</button>
+      <button class="filter-btn" data-filter="structural">🧩 Structural</button>
+      <button class="filter-btn" data-filter="behavioral">💬 Behavioral</button>
+      <button class="filter-btn" data-filter="combination">🔗 Combinations</button>
+    </div>
+
+    <!-- Pattern Grid -->
+    <div class="patterns-grid" id="patternsGrid"></div>
+
+    <!-- No Results -->
+    <div class="no-results hidden" id="noResults">
+      <span class="emoji">🔍</span>
+      No patterns match your search.
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      Each file is self-contained and runnable: <code>python3 patterns/creational/01_singleton.py</code>
+    </footer>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════
+    //  Pattern Data
+    // ═══════════════════════════════════
+
+    const patterns = [
+      // CREATIONAL
+      {
+        id: "singleton", num: "C.01", category: "creational",
+        title: "Singleton",
+        intent: "Ensure a class has only ONE instance and provide a global access point to it.",
+        analogy: "A country has one government — no matter who asks, they get the same answer.",
+        scenario: "Database connection pool manager",
+        useWhen: ["Exactly one instance needed (DB pool)", "Global access with lazy init", "Controlled access to sole resource"],
+        code: `class SingletonMeta(type):\n    _instances = {}\n    _lock = threading.Lock()\n\n    def __call__(cls, *args, **kwargs):\n        if cls not in cls._instances:\n            with cls._lock:\n                if cls not in cls._instances:\n                    instance = super().__call__(*args, **kwargs)\n                    cls._instances[cls] = instance\n        return cls._instances[cls]`,
+        related: ["Factory Method", "Facade", "Flyweight"],
+        file: "patterns/creational/01_singleton.py"
+      },
+      {
+        id: "factory-method", num: "C.02", category: "creational",
+        title: "Factory Method",
+        intent: "Define an interface for creating objects, letting subclasses decide which class to instantiate.",
+        analogy: "A logistics company uses a factory to produce the right vehicle for each delivery type.",
+        scenario: "Cross-platform notification sender (Email/SMS/Push)",
+        useWhen: ["Unknown exact types ahead of time", "Extensible library components", "Reusing existing objects"],
+        code: `class NotificationService(ABC):\n    @abstractmethod\n    def create_notification(self) -> Notification:\n        pass\n\n    def notify_user(self, recipient, message):\n        notification = self.create_notification()\n        return notification.send(recipient, message)`,
+        related: ["Abstract Factory", "Template Method", "Prototype"],
+        file: "patterns/creational/02_factory_method.py"
+      },
+      {
+        id: "abstract-factory", num: "C.03", category: "creational",
+        title: "Abstract Factory",
+        intent: "Create families of related objects without specifying concrete classes.",
+        analogy: "An interior designer offers style packages — pick a style and everything coordinates.",
+        scenario: "UI theme toolkit (Dark/Light themes producing buttons, inputs, cards)",
+        useWhen: ["Multiple families of related products", "Ensure product compatibility", "Hide construction details"],
+        code: `class UIFactory(ABC):\n    @abstractmethod\n    def create_button(self) -> Button: pass\n    @abstractmethod\n    def create_input(self) -> Input: pass\n    @abstractmethod\n    def create_card(self) -> Card: pass\n\nclass DarkThemeFactory(UIFactory): ...`,
+        related: ["Factory Method", "Singleton", "Builder"],
+        file: "patterns/creational/03_abstract_factory.py"
+      },
+      {
+        id: "builder", num: "C.04", category: "creational",
+        title: "Builder",
+        intent: "Separate the construction of a complex object from its representation.",
+        analogy: "Building a house: lay foundation → walls → roof → windows. Same process, different houses.",
+        scenario: "SQL query builder with fluent interface",
+        useWhen: ["Step-by-step construction", "Different representations", "Too many constructor parameters"],
+        code: `query = (QueryBuilder()\n    .select("name", "email")\n    .from_table("users")\n    .where("active = true")\n    .order("name ASC")\n    .limit(20)\n    .build())`,
+        related: ["Abstract Factory", "Composite", "Prototype"],
+        file: "patterns/creational/04_builder.py"
+      },
+      {
+        id: "prototype", num: "C.05", category: "creational",
+        title: "Prototype",
+        intent: "Create new objects by cloning existing ones rather than building from scratch.",
+        analogy: "Cell division — copy an existing cell and let the copy diverge.",
+        scenario: "Game entity spawner — clone configured templates",
+        useWhen: ["Cloning is cheaper than creating", "Copies with slight variations", "Template/registry of preconfigured objects"],
+        code: `def clone(self, **overrides) -> GameEntity:\n    cloned = copy.deepcopy(self)\n    for key, value in overrides.items():\n        setattr(cloned, key, value)\n    return cloned`,
+        related: ["Factory Method", "Abstract Factory", "Memento"],
+        file: "patterns/creational/05_prototype.py"
+      },
+
+      // STRUCTURAL
+      {
+        id: "adapter", num: "S.01", category: "structural",
+        title: "Adapter",
+        intent: "Allow objects with incompatible interfaces to collaborate by wrapping one with a translator.",
+        analogy: "A power adapter lets you plug a US device into a European outlet.",
+        scenario: "Legacy XML API → Modern JSON API integration",
+        useWhen: ["Integrate legacy/3rd-party code", "Format conversion wrapper", "API migration"],
+        code: `class XMLToJSONAdapter(DataSource):\n    def __init__(self, xml_service):\n        self._adaptee = xml_service\n\n    def fetch(self, query) -> list[dict]:\n        xml = self._adaptee.xml_request(query)\n        return self._parse_xml_to_dict(xml)`,
+        related: ["Bridge", "Decorator", "Facade", "Proxy"],
+        file: "patterns/structural/01_adapter.py"
+      },
+      {
+        id: "bridge", num: "S.02", category: "structural",
+        title: "Bridge",
+        intent: "Decouple abstraction from implementation so both can vary independently.",
+        analogy: "Remote controls (abstraction) work with different devices (implementation).",
+        scenario: "Media player × Renderer (Desktop, Mobile, Web)",
+        useWhen: ["Two independent dimensions of variation", "Switch implementations at runtime", "Prevent class explosion"],
+        code: `class MediaPlayer(ABC):\n    def __init__(self, renderer: MediaRenderer):\n        self._renderer = renderer  # THE BRIDGE\n\n    def play(self, filename):\n        return self._renderer.render_audio(filename)`,
+        related: ["Adapter", "Abstract Factory", "Strategy"],
+        file: "patterns/structural/02_bridge.py"
+      },
+      {
+        id: "composite", num: "S.03", category: "structural",
+        title: "Composite",
+        intent: "Compose objects into tree structures; treat individual and composite objects uniformly.",
+        analogy: "Military orders flow from general → division → battalion → soldier. Same interface at every level.",
+        scenario: "File system and organization hierarchy",
+        useWhen: ["Tree/hierarchy structure", "Uniform leaf and container treatment", "Recursive operations over tree"],
+        code: `class Directory(FileSystemItem):\n    def get_size(self) -> int:\n        # Recursively sum children\n        return sum(child.get_size()\n                   for child in self._children)`,
+        related: ["Iterator", "Visitor", "Builder", "Decorator"],
+        file: "patterns/structural/03_composite.py"
+      },
+      {
+        id: "decorator", num: "S.04", category: "structural",
+        title: "Decorator",
+        intent: "Attach additional responsibilities to objects dynamically by wrapping them.",
+        analogy: "Wearing clothes: shirt → sweater → jacket. Each layer adds warmth. You're still you.",
+        scenario: "Coffee toppings + API middleware pipeline",
+        useWhen: ["Dynamic behavior addition", "Avoid subclass explosion", "Composable behavior building blocks"],
+        code: `# Stack like layers:\npipeline = LoggingMiddleware(\n    AuthMiddleware(\n        CacheMiddleware(\n            CoreHandler()\n        )\n    )\n)`,
+        related: ["Adapter", "Composite", "Strategy", "Proxy"],
+        file: "patterns/structural/04_decorator.py"
+      },
+      {
+        id: "facade", num: "S.05", category: "structural",
+        title: "Facade",
+        intent: "Provide a simplified interface to a complex subsystem.",
+        analogy: "A universal remote for a home theater — one button for 'movie night'.",
+        scenario: "Home theater system (TV + audio + projector + lights)",
+        useWhen: ["Simple interface to complex subsystem", "Layer your subsystem", "Reduce client-subsystem coupling"],
+        code: `class HomeTheaterFacade:\n    def watch_movie(self, title):\n        self._projector.power_on()\n        self._audio.power_on()\n        self._audio.set_mode("Surround 7.1")\n        self._lights.set_brightness(15)\n        self._streamer.play(title)`,
+        related: ["Adapter", "Singleton", "Mediator"],
+        file: "patterns/structural/05_facade.py"
+      },
+      {
+        id: "flyweight", num: "S.06", category: "structural",
+        title: "Flyweight",
+        intent: "Share state across many objects to save memory.",
+        analogy: "A game forest: 10,000 trees but only 4 tree types (shared textures/meshes).",
+        scenario: "Game map with 10K trees sharing 4 TreeType flyweights",
+        useWhen: ["Huge number of similar objects", "Most state can be shared", "Memory is a bottleneck"],
+        code: `@dataclass(frozen=True)\nclass TreeType:  # SHARED flyweight\n    species: str\n    color: str\n    texture: str\n\nclass Tree:  # UNIQUE context\n    def __init__(self, x, y, age, tree_type):\n        self.x, self.y = x, y  # Extrinsic\n        self._type = tree_type  # Shared!`,
+        related: ["Singleton", "Composite", "Factory Method"],
+        file: "patterns/structural/06_flyweight.py"
+      },
+      {
+        id: "proxy", num: "S.07", category: "structural",
+        title: "Proxy",
+        intent: "Provide a surrogate to control access to another object.",
+        analogy: "A security guard (proxy) who checks your ID before letting you into a building.",
+        scenario: "Database with lazy-loading, access control, logging, and caching proxies",
+        useWhen: ["Lazy initialization (virtual)", "Access control (protection)", "Logging/caching without modifying"],
+        code: `class LazyDatabaseProxy(Database):\n    def query(self, sql):\n        if self._real_db is None:\n            self._real_db = RealDatabase(url)\n        return self._real_db.query(sql)`,
+        related: ["Decorator", "Adapter", "Facade"],
+        file: "patterns/structural/07_proxy.py"
+      },
+
+      // BEHAVIORAL
+      {
+        id: "chain-of-responsibility", num: "B.01", category: "behavioral",
+        title: "Chain of Responsibility",
+        intent: "Pass a request along a chain of handlers; each decides to process or pass it.",
+        analogy: "Customer support escalation: Level 1 → Level 2 → Manager.",
+        scenario: "HTTP middleware pipeline (CORS → Auth → RateLimit → Router)",
+        useWhen: ["Multiple possible handlers", "Decouple sender from receiver", "Request pipeline processing"],
+        code: `cors.set_next(auth)\n    .set_next(rate_limit)\n    .set_next(validation)\n    .set_next(router)\n\nresponse = cors.handle(request)`,
+        related: ["Decorator", "Command", "Composite"],
+        file: "patterns/behavioral/01_chain_of_responsibility.py"
+      },
+      {
+        id: "command", num: "B.02", category: "behavioral",
+        title: "Command",
+        intent: "Encapsulate a request as an object for undo, queuing, and logging.",
+        analogy: "A restaurant order: waiter writes it down, passes to kitchen. Can be cancelled or replayed.",
+        scenario: "Smart home remote with undo/redo and macro commands",
+        useWhen: ["Undo/redo functionality", "Queue/schedule operations", "Audit logging", "Parameterize actions"],
+        code: `class LightOnCommand(Command):\n    def execute(self):\n        self._prev = self._light.is_on\n        self._light.on()\n    def undo(self):\n        if not self._prev:\n            self._light.off()`,
+        related: ["Memento", "Strategy", "Chain of Responsibility"],
+        file: "patterns/behavioral/02_command.py"
+      },
+      {
+        id: "iterator", num: "B.03", category: "behavioral",
+        title: "Iterator",
+        intent: "Access elements of a collection sequentially without exposing its internals.",
+        analogy: "A TV remote's channel up/down — traverse channels without knowing the internal list.",
+        scenario: "Paginated API fetcher + tree traversal strategies (DFS, BFS)",
+        useWhen: ["Traverse without exposing internals", "Multiple traversal strategies", "Uniform interface for different collections"],
+        code: `def depth_first(node):\n    yield node.value\n    for child in node.children:\n        yield from depth_first(child)\n\nfor item in depth_first(tree):\n    print(item)  # Seamless!`,
+        related: ["Composite", "Factory Method", "Visitor"],
+        file: "patterns/behavioral/03_iterator.py"
+      },
+      {
+        id: "mediator", num: "B.04", category: "behavioral",
+        title: "Mediator",
+        intent: "Define a central hub for object communication, reducing many-to-many dependencies.",
+        analogy: "An air traffic control tower — planes talk to the tower, not to each other.",
+        scenario: "Air traffic control coordinating landings, takeoffs, and emergencies",
+        useWhen: ["Complex object interactions", "Reusing components is hard", "Centralized control point needed"],
+        code: `class ControlTower(AirTrafficControl):\n    def notify(self, sender, event):\n        if event == "request_landing":\n            runway = self._find_runway()\n            sender.land(runway)`,
+        related: ["Observer", "Facade", "Command"],
+        file: "patterns/behavioral/04_mediator.py"
+      },
+      {
+        id: "memento", num: "B.05", category: "behavioral",
+        title: "Memento",
+        intent: "Capture an object's state so it can be restored later, without violating encapsulation.",
+        analogy: "A game save file — captures your progress so you can reload if you fail.",
+        scenario: "Game save system with named slots, auto-save, and undo/redo",
+        useWhen: ["Undo/redo", "Save/load state", "Checkpoints and rollback"],
+        code: `def save(self, label="") -> GameMemento:\n    state = {\n        "level": self.level,\n        "health": self.health,\n        "inventory": self.inventory.copy(),\n    }\n    return GameMemento(_state=state, _label=label)`,
+        related: ["Command", "Prototype", "Iterator"],
+        file: "patterns/behavioral/05_memento.py"
+      },
+      {
+        id: "observer", num: "B.06", category: "behavioral",
+        title: "Observer",
+        intent: "Define a subscription mechanism to notify multiple objects about events.",
+        analogy: "Magazine subscription: publishers send issues to all subscribers automatically.",
+        scenario: "Stock market ticker with dashboard, mobile alerts, and trade logging",
+        useWhen: ["Changes trigger updates in others", "Unknown number of dependents", "Loose coupling between publisher and subscribers"],
+        code: `market.subscribe("price_change", dashboard)\nmarket.subscribe("spike", alert_system)\n\n# When price changes, all subscribers\n# are notified automatically!\nmarket.update_price("AAPL", 165.00)`,
+        related: ["Mediator", "Command", "Singleton"],
+        file: "patterns/behavioral/06_observer.py"
+      },
+      {
+        id: "state", num: "B.07", category: "behavioral",
+        title: "State",
+        intent: "Let an object alter its behavior when its internal state changes.",
+        analogy: "A vending machine: behavior depends on state (idle, has-money, dispensing).",
+        scenario: "Vending machine with 4 states (Idle, HasMoney, Dispensing, OutOfStock)",
+        useWhen: ["Behavior depends on state", "Large conditional logic by state", "Implementing a state machine"],
+        code: `class HasMoneyState(VendingState):\n    def select_product(self, machine, product):\n        if machine.balance >= price:\n            machine.set_state(DispensingState())\n            return "Dispensing..."\n        return "Insufficient funds"`,
+        related: ["Strategy", "Flyweight", "Singleton"],
+        file: "patterns/behavioral/07_state.py"
+      },
+      {
+        id: "strategy", num: "B.08", category: "behavioral",
+        title: "Strategy",
+        intent: "Define interchangeable algorithms and swap them at runtime.",
+        analogy: "GPS navigation: same destination, choose fastest/shortest/scenic route.",
+        scenario: "Route navigation (fastest, shortest, cheapest, scenic, balanced)",
+        useWhen: ["Multiple algorithms for same task", "Switch algorithms at runtime", "Isolate algorithm-specific code"],
+        code: `nav = Navigator(FastestRoute())\nresult = nav.navigate(origin, dest, routes)\n\n# Swap at runtime!\nnav.set_strategy(ScenicRoute())\nresult = nav.navigate(origin, dest, routes)`,
+        related: ["State", "Factory Method", "Decorator", "Template Method"],
+        file: "patterns/behavioral/08_strategy.py"
+      },
+      {
+        id: "template-method", num: "B.09", category: "behavioral",
+        title: "Template Method",
+        intent: "Define an algorithm skeleton; let subclasses override specific steps.",
+        analogy: "A recipe template: 1) Prep → 2) Cook → 3) Serve. Different dishes override each step.",
+        scenario: "Data mining pipeline: extract → transform → analyze → report",
+        useWhen: ["Similar algorithms with slight differences", "Control extension points", "Reduce code duplication in subclasses"],
+        code: `class DataMiningPipeline(ABC):\n    def mine(self, source):  # TEMPLATE\n        raw = self.extract(source)\n        clean = self.transform(raw)\n        result = self.analyze(clean)\n        return self.report(result)`,
+        related: ["Strategy", "Factory Method"],
+        file: "patterns/behavioral/09_template_method.py"
+      },
+      {
+        id: "visitor", num: "B.10", category: "behavioral",
+        title: "Visitor",
+        intent: "Add new operations to classes without modifying them.",
+        analogy: "A tax inspector visits different properties and calculates tax for each type.",
+        scenario: "Document export system (HTML, Markdown, PlainText, WordCount)",
+        useWhen: ["Add operations to stable hierarchy", "Keep related operations together", "Class hierarchy rarely changes"],
+        code: `class HTMLVisitor(DocumentVisitor):\n    def visit_heading(self, h):\n        return f"<h{h.level}>{h.text}</h{h.level}>"\n    def visit_paragraph(self, p):\n        return f"<p>{p.text}</p>"`,
+        related: ["Iterator", "Composite", "Strategy"],
+        file: "patterns/behavioral/10_visitor.py"
+      },
+
+      // COMBINATIONS
+      {
+        id: "combo-strategy-factory", num: "X.01", category: "combination",
+        title: "Strategy + Factory",
+        intent: "Factory selects WHICH strategy; Strategy defines HOW to execute.",
+        analogy: "Pick a payment method → system creates the right processor → processes payment.",
+        scenario: "Payment processing system (Credit Card, PayPal, Crypto, Bank Transfer)",
+        useWhen: ["Multiple algorithms selected by context", "Decouple algorithm creation from use"],
+        code: `strategy = PaymentFactory.create("credit_card", details)\nresult = strategy.process(amount)`,
+        related: ["Strategy", "Factory Method"],
+        file: "combinations/01_strategy_factory.py"
+      },
+      {
+        id: "combo-command-memento", num: "X.02", category: "combination",
+        title: "Command + Memento",
+        intent: "Commands store state snapshots (mementos) to enable undo/redo.",
+        analogy: "Before each edit, take a photo of the document. Undo = restore the photo.",
+        scenario: "Text editor with full undo/redo (even for complex operations like replace-all)",
+        useWhen: ["Undo/redo for complex operations", "Operations hard to reverse algorithmically"],
+        code: `class EditorCommand(ABC):\n    def execute(self):\n        self._memento = self._doc.save_state()\n        return self._do_execute()\n    def undo(self):\n        self._doc.restore_state(self._memento)`,
+        related: ["Command", "Memento"],
+        file: "combinations/02_command_memento.py"
+      },
+      {
+        id: "combo-observer-mediator", num: "X.03", category: "combination",
+        title: "Observer + Mediator",
+        intent: "Mediator routes messages; Observer handles subscriptions.",
+        analogy: "A dashboard: filter panel → mediator → table updates → chart reacts.",
+        scenario: "Event-driven dashboard with filter panel, data table, chart, and status bar",
+        useWhen: ["Complex widget communication", "Event-driven UI updates"],
+        code: `# Widgets subscribe to mediator events\nmediator.subscribe("filter_changed", table)\nmediator.subscribe("data_updated", chart)\n\n# filter change → table → chart (automatic)`,
+        related: ["Observer", "Mediator"],
+        file: "combinations/03_observer_mediator.py"
+      },
+      {
+        id: "combo-composite-iterator", num: "X.04", category: "combination",
+        title: "Composite + Iterator",
+        intent: "Same tree structure, multiple traversal strategies.",
+        analogy: "A file browser: same folder tree, but DFS for tree view, BFS for search.",
+        scenario: "File system browser with DFS, BFS, by-extension, and sorted-by-size iterators",
+        useWhen: ["Hierarchical data with multiple views", "Different traversal needs on same structure"],
+        code: `for node in depth_first(root): ...\nfor node in breadth_first(root): ...\nfor f in by_extension(root, ".py"): ...\nfor f in sorted_by_size(root): ...`,
+        related: ["Composite", "Iterator"],
+        file: "combinations/04_composite_iterator.py"
+      },
+      {
+        id: "combo-decorator-strategy", num: "X.05", category: "combination",
+        title: "Decorator + Strategy",
+        intent: "Strategy = core algorithm; Decorator = cross-cutting layers.",
+        analogy: "The engine (strategy) does the work; the car body (decorators) adds features around it.",
+        scenario: "API middleware pipeline with logging, caching, validation, retry decorators",
+        useWhen: ["Core logic + orthogonal concerns", "Mix-and-match algorithm + features"],
+        code: `pipeline = PipelineBuilder(JsonProcessor())\n    .with_validation()\n    .with_caching()\n    .with_logging()\n    .with_timing()\n    .build()`,
+        related: ["Decorator", "Strategy"],
+        file: "combinations/05_decorator_strategy.py"
+      },
+      {
+        id: "combo-builder-composite", num: "X.06", category: "combination",
+        title: "Builder + Composite",
+        intent: "Builder provides fluent API to construct Composite trees.",
+        analogy: "LEGO instructions (builder) for building a LEGO tree (composite).",
+        scenario: "HTML document builder constructing element trees with fluent API",
+        useWhen: ["Complex tree construction", "Readable tree-building code"],
+        code: `page = HTMLBuilder()\n    .document("My Site")\n    .open("div", class="content")\n        .h(1, "Welcome")\n        .p("Hello world!")\n    .close()\n    .build()`,
+        related: ["Builder", "Composite"],
+        file: "combinations/06_builder_composite.py"
+      },
+      {
+        id: "combo-plugin-system", num: "X.07", category: "combination",
+        title: "Factory + Observer + Strategy",
+        intent: "Factory creates plugins; Observer tracks lifecycle; Strategy executes behavior.",
+        analogy: "A plugin marketplace: install → activate → run — with lifecycle notifications.",
+        scenario: "Plugin system with registration, lifecycle events, and interchangeable behaviors",
+        useWhen: ["Extensible plugin/module systems", "Dynamic feature loading"],
+        code: `manager.register(MarkdownPlugin)\nmanager.activate("markdown-renderer")\n\nmanager.events.on("plugin_activated",\n    lambda name, v: print(f"Loaded {name}"))`,
+        related: ["Factory Method", "Observer", "Strategy"],
+        file: "combinations/07_factory_observer_strategy.py"
+      },
+      {
+        id: "combo-mvc", num: "X.08", category: "combination",
+        title: "MVC (3 Patterns)",
+        intent: "Model(Observer) + View(Composite) + Controller(Strategy) = full architecture.",
+        analogy: "A restaurant: kitchen (model), menu display (view), waiter (controller).",
+        scenario: "Todo application with data binding, composable UI, and command routing",
+        useWhen: ["Full application architecture", "Separation of concerns at scale"],
+        code: `# Model notifies View (Observer)\n# View builds UI tree (Composite)\n# Controller routes commands (Strategy)\napp.run_command("add Learn patterns")\nprint(app.display())  # Auto-updated!`,
+        related: ["Observer", "Composite", "Strategy"],
+        file: "combinations/08_mvc_full_stack.py"
+      },
+    ];
+
+    // ═══════════════════════════════════
+    //  Rendering
+    // ═══════════════════════════════════
+
+    function createCard(p) {
+      const categoryLabels = {
+        creational: "Creational",
+        structural: "Structural",
+        behavioral: "Behavioral",
+        combination: "Combination"
+      };
+
+      const useWhenHTML = p.useWhen
+        ? `<div class="detail-section">
+            <div class="detail-label">Use When</div>
+            <div class="detail-text">${p.useWhen.map(u => `• ${u}`).join('<br>')}</div>
+          </div>`
+        : '';
+
+      return `
+        <div class="pattern-card" data-category="${p.category}" data-id="${p.id}"
+             onclick="this.classList.toggle('expanded')">
+          <div class="card-header">
+            <span class="card-number">${p.num}</span>
+            <span class="card-category category-${p.category}">${categoryLabels[p.category]}</span>
+          </div>
+          <div class="card-title">${p.title}</div>
+          <div class="card-intent">${p.intent}</div>
+          <div class="card-tags">
+            <span class="tag">${p.scenario}</span>
+          </div>
+          <div class="card-detail">
+            <div class="card-detail-inner">
+              <div class="detail-section">
+                <div class="detail-label">Analogy</div>
+                <div class="detail-text">${p.analogy}</div>
+              </div>
+              ${useWhenHTML}
+              <div class="detail-section">
+                <div class="detail-label">Code Snippet</div>
+                <div class="detail-code">${p.code}</div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-label">Related Patterns</div>
+                <div class="detail-related">
+                  ${p.related.map(r => `<span class="related-tag">${r}</span>`).join('')}
+                </div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-label">File</div>
+                <div class="detail-text" style="font-family: 'JetBrains Mono', monospace; color: var(--accent-green);">${p.file}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPatterns(filtered) {
+      const grid = document.getElementById('patternsGrid');
+      const noResults = document.getElementById('noResults');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+        grid.innerHTML = filtered.map(createCard).join('');
+      }
+    }
+
+    // ═══════════════════════════════════
+    //  Filtering & Search
+    // ═══════════════════════════════════
+
+    let currentFilter = 'all';
+    let currentSearch = '';
+
+    function getFiltered() {
+      return patterns.filter(p => {
+        const matchFilter = currentFilter === 'all' || p.category === currentFilter;
+        const matchSearch = !currentSearch ||
+          p.title.toLowerCase().includes(currentSearch) ||
+          p.intent.toLowerCase().includes(currentSearch) ||
+          p.scenario.toLowerCase().includes(currentSearch) ||
+          p.analogy.toLowerCase().includes(currentSearch) ||
+          (p.useWhen && p.useWhen.some(u => u.toLowerCase().includes(currentSearch))) ||
+          p.related.some(r => r.toLowerCase().includes(currentSearch));
+        return matchFilter && matchSearch;
+      });
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderPatterns(getFiltered());
+      });
+    });
+
+    // Search
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      currentSearch = e.target.value.toLowerCase().trim();
+      renderPatterns(getFiltered());
+    });
+
+    // ═══════════════════════════════════
+    //  Initial Render
+    // ═══════════════════════════════════
+
+    renderPatterns(patterns);
+  </script>
+</body>
+</html>
